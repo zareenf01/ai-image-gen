@@ -1,6 +1,6 @@
 # Imagify - AI Image Generator
 
-Imagify is your go-to solution for transforming text into stunning AI-generated images. Whether you're looking for creative inspiration, social media content, or artistic visuals, Imagify provides a seamless experience with its intuitive interface and powerful AI capabilities. Simply input your text, and Imagify will generate unique images instantly.
+Imagify is your go-to solution for transforming text into stunning AI-generated images. Just type in your idea, and let the AI do the magic! Perfect for social media, creative projects, or just for fun. Give it a try and see what you can create!
 
 ## Features
 
