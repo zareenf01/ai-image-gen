@@ -61,6 +61,14 @@ function Generate() {
       setLoading(false);
     }
   };
+  const handleDownload = () => {
+    const downloadLink = document.createElement("a");
+    downloadLink.href = imageUrl;
+    downloadLink.download = `imagify-${Date.now()}.jpg`;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+  };
 
   return (
     <div className="p-3 flex flex-col justify-center ">
@@ -89,12 +97,47 @@ function Generate() {
         )}
 
         {imageUrl && (
-          <div className="mt-8 mb-8 mx-auto">
+          <div className="mt-8 mb-8 mx-auto flex flex-col justify-center items-center">
             <img
               src={imageUrl}
               alt="Generated"
               className="rounded-lg shadow-lg max-w-lg"
             />
+
+            <button
+              onClick={handleDownload}
+              className="cursor-pointer group relative flex gap-1.5 px-8 py-4 bg-black bg-opacity-80 text-[#f1f1f1] rounded-3xl hover:bg-opacity-70 transition font-semibold shadow-md"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                height="24px"
+                width="24px"
+              >
+                <g stroke-width="0" id="SVGRepo_bgCarrier"></g>
+                <g
+                  stroke-linejoin="round"
+                  stroke-linecap="round"
+                  id="SVGRepo_tracerCarrier"
+                ></g>
+                <g id="SVGRepo_iconCarrier">
+                  {" "}
+                  <g id="Interface / Download">
+                    {" "}
+                    <path
+                      stroke-linejoin="round"
+                      stroke-linecap="round"
+                      stroke-width="2"
+                      stroke="#f1f1f1"
+                      d="M6 21H18M12 3V17M12 17L17 12M12 17L7 12"
+                      id="Vector"
+                    ></path>{" "}
+                  </g>{" "}
+                </g>
+              </svg>
+              Download
+            </button>
           </div>
         )}
 
