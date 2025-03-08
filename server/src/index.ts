@@ -81,17 +81,12 @@ app.post("/generate-content", async (req, res) => {
       return;
     }
   } catch (error) {
-    console.error(
-      "API Error Details:",
-      error.response?.data || "No detailed error data"
-    );
+    console.error("API Error:", error.response?.data || error.message || error);
     res.status(500).json({
       error: "Failed to generate image",
       status: error.response?.status || "unknown",
-      message: error.message,
-      details:
-        error.response?.data?.detail ||
-        "No detailed error information available",
+      message: error.message || "No error message available",
+      details: error.response?.data || "No detailed error information",
     });
   }
 });
