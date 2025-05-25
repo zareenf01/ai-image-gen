@@ -91,6 +91,15 @@ app.post("/generate-content", async (req, res) => {
   }
 });
 
+app.get("/images", async (req, res) => {
+  try {
+    const images = await prisma.image.findMany();
+    res.status(200).json(images);
+  } catch (error) {
+    res.json({ error: "Failed to fetch images" });
+  }
+});
+
 app.listen(PORT, () => {
   console.log("Server is running on port " + PORT);
 });

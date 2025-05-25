@@ -14,7 +14,7 @@ function Generate() {
   const [imageUrl, setImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
+  const [generated, setGenerated] = useState(false);
   const api = import.meta.env.VITE_API_URL;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,7 +29,7 @@ function Generate() {
       setError("Please enter a prompt");
       return;
     }
-
+    if (generated) return;
     setError("");
     setLoading(true);
 

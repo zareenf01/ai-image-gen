@@ -21,7 +21,7 @@ function Main() {
           </Link>
         </div>
       </div>
-      <div className="mt-28 pt-24 hidden md:block">
+      <div className="mt-28 pt-24 max-w-80 md:max-w-full md:block">
         <Vortex />
       </div>
     </div>
