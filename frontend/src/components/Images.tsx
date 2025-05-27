@@ -1,7 +1,7 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { Download } from "lucide-react";
+import axios from "axios";
 
 interface ImageData {
   id: string;
@@ -13,21 +13,25 @@ export function ImageGallery() {
   const [images, setImages] = useState<ImageData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const url = import.meta.env.VITE_IMG_URL;
 
   useEffect(() => {
     const fetchImages = async () => {
       try {
         setLoading(true);
-        const response = await fetch("http://localhost:4000/images");
+        if (!url) {
+          throw new Error(
+            "Image URL is not defined in the environment variables."
+          );
+        }
+        const response = await axios.get(url);
 
-        if (!response.ok) {
+        if (!response.data) {
           throw new Error(
             `Failed to fetch images: ${response.status} ${response.statusText}`
           );
         }
-
-        const data = await response.json();
-        setImages(data);
+        setImages(response.data);
       } catch (err) {
         console.error("Error fetching images:", err);
         setError(err instanceof Error ? err.message : "Failed to fetch images");
@@ -70,13 +74,13 @@ export function ImageGallery() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-80">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-80 px-5 md:px-10 items-center">
       {loading
         ? // skeletons
           Array.from({ length: 6 }).map((_, index) => (
             <div
               key={index}
-              className="bg-gray-800 rounded-lg overflow-hidden shadow-lg"
+              className="bg-[#171717] rounded-lg overflow-hidden shadow-lg"
             >
               <div className="h-64 bg-gray-700 animate-pulse"></div>
               <div className="p-4">
