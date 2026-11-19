@@ -100,7 +100,7 @@ export function Features() {
               />
             </div>
           </div>
-          <CardText title="Results in seconds" body="From prompt to finished image before your coffee cools." />
+          <CardText title="Results in seconds" body="From prompt to finished image in a few seconds." />
         </Card>
 
         <Card delay={0.04}>

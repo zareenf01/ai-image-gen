@@ -301,7 +301,7 @@ export default function Studio() {
                     <span className="grid h-12 w-12 place-items-center rounded-full bg-red-500/10 text-red-600">
                       <AlertCircle className="h-5 w-5" />
                     </span>
-                    <p className="mt-5 text-2xl font-medium tracking-tight">Something went sideways.</p>
+                    <p className="mt-5 text-2xl font-medium tracking-tight">Something went wrong.</p>
                     <p className="mt-2 text-sm text-muted">{error}</p>
                     <button
                       onClick={() => run()}

@@ -1,45 +1,76 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Download, RotateCw, Search, X } from "lucide-react";
-import { downloadImage, fetchGallery, slugify, type GalleryImage } from "../lib/api";
+import {
+  downloadImage,
+  fetchGalleryPage,
+  GALLERY_PAGE_SIZE as PAGE,
+  slugify,
+  type GalleryImage,
+} from "../lib/api";
 import { Eyebrow, Reveal } from "../ui/Reveal";
 import { BlurText } from "../ui/BlurText";
 import { Lightbox } from "./Lightbox";
 import { cn } from "../lib/utils";
 
-const PAGE = 18;
 
 export function Gallery() {
   const [images, setImages] = useState<GalleryImage[]>([]);
+  const [total, setTotal] = useState(0);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [loadingMore, setLoadingMore] = useState(false);
   const [slow, setSlow] = useState(false);
   const [query, setQuery] = useState("");
-  const [visible, setVisible] = useState(PAGE);
+  const [search, setSearch] = useState("");
   const [open, setOpen] = useState<number | null>(null);
+  const requestRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    const t = setTimeout(() => setSearch(query.trim()), 350);
+    return () => clearTimeout(t);
+  }, [query]);
 
   const load = useCallback(() => {
+    requestRef.current?.abort();
+    const ac = new AbortController();
+    requestRef.current = ac;
     setStatus("loading");
     setSlow(false);
     const t = setTimeout(() => setSlow(true), 4500);
-    fetchGallery()
-      .then((imgs) => {
-        setImages(imgs);
+    fetchGalleryPage({ q: search, signal: ac.signal })
+      .then((page) => {
+        setImages(page.images);
+        setTotal(page.total);
+        setNextCursor(page.nextCursor);
         setStatus("ready");
       })
-      .catch(() => setStatus("error"))
+      .catch(() => {
+        if (!ac.signal.aborted) setStatus("error");
+      })
       .finally(() => clearTimeout(t));
-  }, []);
+  }, [search]);
 
-  useEffect(load, [load]);
+  useEffect(() => {
+    load();
+    return () => requestRef.current?.abort();
+  }, [load]);
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return q ? images.filter((i) => i.prompt.toLowerCase().includes(q)) : images;
-  }, [images, query]);
+  const loadMore = async () => {
+    if (!nextCursor || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const page = await fetchGalleryPage({ cursor: nextCursor, q: search });
+      setImages((prev) => [...prev, ...page.images]);
+      setTotal(page.total);
+      setNextCursor(page.nextCursor);
+    } catch {
+      return;
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
-  useEffect(() => setVisible(PAGE), [query]);
-
-  const shown = filtered.slice(0, visible);
   const onClose = useCallback(() => setOpen(null), []);
 
   return (
@@ -57,7 +88,7 @@ export function Gallery() {
           <Reveal delay={0.15} className="mt-4 max-w-md text-[15px] leading-relaxed text-muted">
             {status === "ready" ? (
               <>
-                <span className="font-mono text-ink">{images.length}</span> images and counting.
+                <span className="font-mono text-ink">{total}</span> images and counting.
                 Click any one to see its prompt, download it or remix it.
               </>
             ) : (
@@ -101,7 +132,7 @@ export function Gallery() {
                 animate={{ opacity: 1, y: 0 }}
                 className="mt-6 text-center font-mono text-xs text-muted"
               >
-                Waking up the server… free hosting naps when idle, this can take ~30s.
+                Loading… the server sleeps when idle, so the first load can take up to a minute.
               </motion.p>
             )}
           </AnimatePresence>
@@ -110,8 +141,8 @@ export function Gallery() {
 
       {status === "error" && (
         <div className="flex flex-col items-center justify-center rounded-[1.6rem] border border-dashed border-line px-6 py-20 text-center">
-          <p className="text-2xl font-medium tracking-tight">The gallery is taking a nap.</p>
-          <p className="mt-2 text-sm text-muted">We couldn't reach the server. Give it another go.</p>
+          <p className="text-2xl font-medium tracking-tight">Couldn&apos;t load the gallery</p>
+          <p className="mt-2 text-sm text-muted">The server may still be starting up. Try again in a few seconds.</p>
           <button
             onClick={load}
             className="mt-6 inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm text-paper transition-colors hover:bg-accent"
@@ -123,33 +154,34 @@ export function Gallery() {
 
       {status === "ready" && (
         <>
-          {filtered.length === 0 ? (
+          {images.length === 0 ? (
             <div className="rounded-[1.6rem] border border-dashed border-line py-20 text-center">
-              <p className="text-2xl font-medium tracking-tight">Nothing for “{query}” yet.</p>
-              <p className="mt-2 text-sm text-muted">Be the first: generate it in the studio.</p>
+              <p className="text-2xl font-medium tracking-tight">Nothing for “{search}” yet.</p>
+              <p className="mt-2 text-sm text-muted">Be the first generate it in the studio.</p>
             </div>
           ) : (
             <Grid>
-              {shown.map((img, i) => (
+              {images.map((img, i) => (
                 <Tile
                   key={img.id}
                   img={img}
-                  featured={!query && (i % PAGE === 0 || i % PAGE === 10)}
+                  featured={!search && (i % PAGE === 0 || i % PAGE === 10)}
                   onOpen={() => setOpen(i)}
                 />
               ))}
             </Grid>
           )}
 
-          {visible < filtered.length && (
+          {nextCursor && (
             <div className="mt-12 flex justify-center">
               <button
-                onClick={() => setVisible((v) => v + PAGE)}
-                className="group inline-flex items-center gap-3 rounded-full border border-line bg-white/60 py-2 pl-5 pr-2 text-sm backdrop-blur transition-colors hover:bg-white"
+                onClick={loadMore}
+                disabled={loadingMore}
+                className="group inline-flex items-center gap-3 rounded-full border border-line bg-white/60 py-2 pl-5 pr-2 text-sm backdrop-blur transition-colors hover:bg-white disabled:cursor-wait"
               >
-                Load more
+                {loadingMore ? "Loading…" : "Load more"}
                 <span className="rounded-full bg-ink px-2.5 py-1 font-mono text-[11px] text-paper transition-colors group-hover:bg-accent">
-                  +{Math.min(PAGE, filtered.length - visible)}
+                  +{Math.min(PAGE, Math.max(total - images.length, 0))}
                 </span>
               </button>
             </div>
@@ -157,7 +189,7 @@ export function Gallery() {
         </>
       )}
 
-      <Lightbox images={shown} index={open} onClose={onClose} onIndex={setOpen} />
+      <Lightbox images={images} index={open} onClose={onClose} onIndex={setOpen} />
     </section>
   );
 }

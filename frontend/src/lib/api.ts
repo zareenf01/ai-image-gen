@@ -1,9 +1,6 @@
 import axios from "axios";
 
 const API_URL: string | undefined = import.meta.env.VITE_API_URL;
-const IMG_URL: string | undefined =
-  import.meta.env.VITE_IMG_URL ??
-  API_URL?.replace(/generate-content\/?$/, "images");
 
 export interface GalleryImage {
   id: string;
@@ -21,7 +18,7 @@ interface RawImage {
 
 function apiOrigin() {
   try {
-    return new URL(IMG_URL ?? API_URL ?? "").origin;
+    return new URL(API_URL ?? "").origin;
   } catch {
     return "";
   }
@@ -60,32 +57,51 @@ export async function generateImage(prompt: string, signal?: AbortSignal) {
   return toSrc(res.data.image_data as string);
 }
 
-let galleryCache: Promise<GalleryImage[]> | null = null;
+export const GALLERY_PAGE_SIZE = 18;
 
-export function fetchGallery(): Promise<GalleryImage[]> {
-  if (galleryCache) return galleryCache;
-  if (!IMG_URL) return Promise.reject(new Error("VITE_IMG_URL is not configured."));
+export interface GalleryPage {
+  images: GalleryImage[];
+  total: number;
+  nextCursor: string | null;
+}
 
-  galleryCache = axios
-    .get<RawImage[]>(IMG_URL)
-    .then((res) => {
-      if (!Array.isArray(res.data)) throw new Error("Unexpected gallery response.");
-      return res.data
-        .filter((img) => img.imageData && img.prompt && isClean(img.prompt))
-        .map((img) => ({
-          id: img.id,
-          prompt: tidyPrompt(img.prompt),
-          src: toSrc(img.imageData),
-          createdAt: img.createdAt,
-        }))
-        .reverse();
-    })
-    .catch((err) => {
-      galleryCache = null;
-      throw err;
-    });
+export async function fetchGalleryPage({
+  cursor,
+  q,
+  signal,
+}: {
+  cursor?: string | null;
+  q?: string;
+  signal?: AbortSignal;
+} = {}): Promise<GalleryPage> {
+  const origin = apiOrigin();
+  if (!origin) throw new Error("VITE_API_URL is not configured.");
 
-  return galleryCache;
+  const res = await axios.get<{ images: RawImage[]; total: number; nextCursor: string | null }>(
+    `${origin}/gallery`,
+    {
+      params: {
+        limit: GALLERY_PAGE_SIZE,
+        ...(cursor ? { cursor } : {}),
+        ...(q ? { q } : {}),
+      },
+      signal,
+    }
+  );
+  if (!Array.isArray(res.data?.images)) throw new Error("Unexpected gallery response.");
+
+  return {
+    images: res.data.images
+      .filter((img) => img.imageData && img.prompt && isClean(img.prompt))
+      .map((img) => ({
+        id: img.id,
+        prompt: tidyPrompt(img.prompt),
+        src: toSrc(img.imageData),
+        createdAt: img.createdAt,
+      })),
+    total: res.data.total,
+    nextCursor: res.data.nextCursor,
+  };
 }
 
 export function downloadImage(src: string, name = `imagify-${Date.now()}.jpg`) {
