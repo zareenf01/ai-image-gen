@@ -7,6 +7,7 @@ import {
   useTransform,
   type MotionValue,
 } from "motion/react";
+import { ArrowRight } from "lucide-react";
 import { showcase, type ShowcaseItem } from "../lib/showcase";
 import { useViewportWidth } from "../ui/useViewport";
 
@@ -120,9 +121,9 @@ function FanCard({
           <span className="truncate font-mono text-[10px] text-muted">{item.prompt}</span>
           <motion.span
             animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : -4 }}
-            className="shrink-0 font-mono text-[10px] text-accent"
+            className="inline-flex shrink-0 items-center gap-0.5 font-mono text-[10px] text-accent"
           >
-            remix →
+            remix <ArrowRight className="h-2.5 w-2.5" />
           </motion.span>
         </div>
       </motion.button>

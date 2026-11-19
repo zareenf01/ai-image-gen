@@ -12,6 +12,9 @@ import {
   RotateCw,
   Sparkles,
   X,
+  ArrowBigUp,
+  CornerDownLeft,
+  Sparkle,
 } from "lucide-react";
 import { downloadImage, generateImage, slugify } from "../lib/api";
 import { examplePrompts, styleChips } from "../lib/showcase";
@@ -390,7 +393,12 @@ export default function Studio() {
                 className="block min-h-[112px] w-full resize-none bg-transparent px-4 pt-3.5 text-[15px] leading-relaxed outline-none placeholder:text-faint"
               />
               <div className="flex items-center justify-between px-4 pb-3 pt-1 font-mono text-[10.5px] text-faint">
-                <span>↵ generate · ⇧↵ new line</span>
+                <span className="inline-flex items-center gap-1">
+                  <CornerDownLeft className="h-3 w-3" /> generate
+                  <span className="mx-1">·</span>
+                  <ArrowBigUp className="h-3 w-3" />
+                  <CornerDownLeft className="h-3 w-3" /> new line
+                </span>
                 <span className={cn(prompt.length > MAX * 0.9 && "text-accent")}>
                   {prompt.length}/{MAX}
                 </span>
@@ -414,7 +422,7 @@ export default function Studio() {
                         : "border-line bg-white/60 text-muted hover:border-ink/20 hover:text-ink"
                     )}
                   >
-                    {on && <span className="mr-1 text-accent-2">✦</span>}
+                    {on && <Sparkle className="mr-1 inline h-3 w-3 -translate-y-px fill-current text-accent-2" />}
                     {c.label}
                   </button>
                 );

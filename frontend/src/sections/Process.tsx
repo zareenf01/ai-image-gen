@@ -7,7 +7,7 @@ import {
   useScroll,
   useTransform,
 } from "motion/react";
-import { Download } from "lucide-react";
+import { ChevronRight, Download } from "lucide-react";
 import { Aurora } from "../ui/Aurora";
 import { Eyebrow } from "../ui/Reveal";
 import { cn } from "../lib/utils";
@@ -137,7 +137,8 @@ export function Process() {
 
                 <div className="absolute left-3 right-3 top-3 flex">
                   <div className="max-w-full truncate rounded-full bg-black/65 px-3.5 py-2 font-mono text-[11px] text-paper/90">
-                    <span className="text-accent-2">›</span> <motion.span>{typedText}</motion.span>
+                    <ChevronRight className="mr-1 inline h-3 w-3 -translate-y-px text-accent-2" />
+                    <motion.span>{typedText}</motion.span>
                     <motion.span
                       animate={{ opacity: [1, 0, 1] }}
                       transition={{ duration: 1, repeat: Infinity }}
