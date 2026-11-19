@@ -1,24 +1,46 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import { Analytics } from "@vercel/analytics/react";
-import "./App.css";
-import Home from "./components/Home";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Generate from "./components/Generate";
+import Home from "./pages/Home";
+import Studio from "./pages/Studio";
+import { Nav } from "./sections/Nav";
+import { scrollToTop, useLenis } from "./lib/useLenis";
 
-function App() {
+function AnimatedRoutes() {
+  const location = useLocation();
   return (
-    <div className="p-3 overscroll-none">
-      <Router>
-        <Analytics />
-        <Routes>
+    <AnimatePresence mode="wait" onExitComplete={() => !location.hash && scrollToTop(true)}>
+      <motion.div
+        key={location.pathname}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.35, ease: "easeOut" }}
+      >
+        <Routes location={location}>
           <Route path="/" element={<Home />} />
-          <Route path="/generate" element={<Generate />} />
+          <Route path="/studio" element={<Studio />} />
+          <Route
+            path="/generate"
+            element={<Navigate to={{ pathname: "/studio", search: location.search }} replace />}
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-      </Router>
-    </div>
+      </motion.div>
+    </AnimatePresence>
   );
 }
 
-export default App;
+export default function App() {
+  useLenis();
+  return (
+    <MotionConfig reducedMotion="user">
+      <BrowserRouter>
+        <Analytics />
+        <div className="grain" aria-hidden />
+        <Nav />
+        <AnimatedRoutes />
+      </BrowserRouter>
+    </MotionConfig>
+  );
+}

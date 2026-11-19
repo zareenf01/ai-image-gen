@@ -21,6 +21,7 @@ Imagify is your go-to solution for transforming text into stunning AI-generated 
 - [Express](https://expressjs.com/)
 - [MongoDB](https://www.mongodb.com/)
 - [Prisma](https://www.prisma.io/)
+- [Cloudflare Workers AI](https://developers.cloudflare.com/workers-ai/) (FLUX.1 schnell) for image generation
 
 ## Getting Started
 
@@ -45,9 +46,10 @@ npm install
 ```
 Go to the .env_sample file and add your environment variables:
 ```sh
-MONGO_CONNECTION=YOUR_CONNECTION_STRING
-API_KEY=YOUR_API_KEY
-PORT=YOUR_PORT
+DATABASE_URL=YOUR_MONGODB_CONNECTION_STRING
+CF_ACCOUNT_ID=YOUR_CLOUDFLARE_ACCOUNT_ID
+CF_API_TOKEN=YOUR_CLOUDFLARE_WORKERS_AI_TOKEN
+PORT=4000
 ```
 Frontend:
 ```sh
