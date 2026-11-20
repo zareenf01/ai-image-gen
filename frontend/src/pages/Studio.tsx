@@ -12,12 +12,11 @@ import {
   RotateCw,
   Sparkles,
   X,
-  ArrowBigUp,
   CornerDownLeft,
   Sparkle,
 } from "lucide-react";
 import { downloadImage, generateImage, slugify } from "../lib/api";
-import { examplePrompts, styleChips } from "../lib/showcase";
+import { examplePrompts, styleChips, surprisePrompts } from "../lib/showcase";
 import { Aurora } from "../ui/Aurora";
 import { LogoMark } from "../ui/Logo";
 import { cn } from "../lib/utils";
@@ -134,7 +133,7 @@ export default function Studio() {
   useEffect(() => () => abortRef.current?.abort(), []);
 
   const surprise = () => {
-    const pool = examplePrompts.filter((p) => p !== prompt);
+    const pool = surprisePrompts.filter((p) => p !== prompt);
     setPrompt(pool[Math.floor(Math.random() * pool.length)]);
     textRef.current?.focus();
   };
@@ -395,9 +394,6 @@ export default function Studio() {
               <div className="flex items-center justify-between px-4 pb-3 pt-1 font-mono text-[10.5px] text-faint">
                 <span className="inline-flex items-center gap-1">
                   <CornerDownLeft className="h-3 w-3" /> generate
-                  <span className="mx-1">·</span>
-                  <ArrowBigUp className="h-3 w-3" />
-                  <CornerDownLeft className="h-3 w-3" /> new line
                 </span>
                 <span className={cn(prompt.length > MAX * 0.9 && "text-accent")}>
                   {prompt.length}/{MAX}
@@ -448,7 +444,7 @@ export default function Studio() {
               )}
             </button>
             <p className="mt-3 text-center text-[11.5px] text-faint">
-              Heads up: generated images are shared in the public gallery.
+              Heads up generated images are shared in the public gallery.
             </p>
           </motion.form>
 

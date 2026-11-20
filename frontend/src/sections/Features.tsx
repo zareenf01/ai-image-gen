@@ -59,7 +59,7 @@ export function Features() {
         </Reveal>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-3 md:grid-rows-[300px_260px]">
+      <div className="grid gap-3 md:grid-cols-3 md:grid-rows-[minmax(320px,auto)_minmax(260px,auto)]">
         <Card className="min-h-[320px] md:col-span-2">
           <CardText
             title="Remix anything"
@@ -113,10 +113,7 @@ export function Features() {
         </Card>
 
         <Card delay={0.1}>
-          <div className="flex items-baseline gap-2">
-            <span className="text-7xl font-semibold leading-none tracking-[-0.05em]">$0</span>
-            <span className="font-mono text-[11px] text-muted">/ forever</span>
-          </div>
+          <span className="text-7xl font-semibold leading-none tracking-[-0.05em]">$0</span>
           <CardText title="Free, no sign-up" body="Open the studio and start typing. That's the whole onboarding." />
         </Card>
 

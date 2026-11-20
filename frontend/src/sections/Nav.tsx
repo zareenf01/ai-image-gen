@@ -7,8 +7,8 @@ import { scrollToId, scrollToTop } from "../lib/useLenis";
 import { cn } from "../lib/utils";
 
 const links = [
-  { id: "showcase", label: "Showcase" },
   { id: "process", label: "Process" },
+  { id: "features", label: "Features" },
   { id: "gallery", label: "Gallery" },
 ];
 
